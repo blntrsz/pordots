@@ -1,12 +1,16 @@
 {
-  "name": "@ports/examples-core",
+  "name": "@ports/example-core",
   "module": "index.ts",
   "type": "module",
   "private": true,
   "devDependencies": {
+    "@ports/mediator": "workspace:*",
     "@types/bun": "latest"
   },
   "peerDependencies": {
     "typescript": "^5"
+  },
+  "dependencies": {
+    "zod": "3.24.2"
   }
 }
