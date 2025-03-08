@@ -1,24 +1,24 @@
-import { z } from "zod";
+import { StandardSchemaV1 } from "@standard-schema/spec";
 
 export interface ICommand<
-  TInput extends z.ZodTypeAny,
-  TOutput extends z.ZodTypeAny,
+  TInput extends StandardSchemaV1,
+  TOutput extends StandardSchemaV1,
 > {
   inputSchema: TInput;
   outputSchema: TOutput;
-  input: z.infer<TInput>;
+  input: StandardSchemaV1.InferOutput<TInput>;
 }
 
 export namespace CommandBuilder {
-  export function input<TInput extends z.ZodTypeAny>(inputSchema: TInput) {
+  export function input<TInput extends StandardSchemaV1>(inputSchema: TInput) {
     return {
-      output<TOutput extends z.ZodTypeAny>(outputSchema: TOutput) {
+      output<TOutput extends StandardSchemaV1>(outputSchema: TOutput) {
         return class Command implements ICommand<TInput, TOutput> {
           inputSchema = inputSchema;
           outputSchema = outputSchema;
-          input: z.infer<TInput>;
+          input: StandardSchemaV1.InferOutput<TInput>;
 
-          constructor(input: z.infer<TInput>) {
+          constructor(input: StandardSchemaV1.InferOutput<TInput>) {
             this.input = input;
           }
         };
@@ -28,20 +28,30 @@ export namespace CommandBuilder {
 }
 
 export interface ICommandHandler<
-  TInput extends z.ZodTypeAny,
-  TOutput extends z.ZodTypeAny,
+  TInput extends StandardSchemaV1,
+  TOutput extends StandardSchemaV1,
 > {
   isCommandMatching(otherCommand: ICommand<any, any>): boolean;
-  handle(command: ICommand<TInput, TOutput>): Promise<z.infer<TOutput>>;
+  handle(
+    command: ICommand<TInput, TOutput>,
+  ): Promise<StandardSchemaV1.InferOutput<TOutput>>;
 }
 
 export namespace CommandHandlerBuilder {
   export function command<
-    TInput extends z.ZodTypeAny,
-    TOutput extends z.ZodTypeAny,
-  >(command: new (input: z.infer<TInput>) => ICommand<TInput, TOutput>) {
+    TInput extends StandardSchemaV1,
+    TOutput extends StandardSchemaV1,
+  >(
+    command: new (
+      input: StandardSchemaV1.InferOutput<TInput>,
+    ) => ICommand<TInput, TOutput>,
+  ) {
     return {
-      handler(callback: (input: z.infer<TInput>) => Promise<z.infer<TOutput>>) {
+      handler(
+        callback: (
+          input: StandardSchemaV1.InferOutput<TInput>,
+        ) => Promise<StandardSchemaV1.InferOutput<TOutput>>,
+      ) {
         return class CommandHandler
           implements ICommandHandler<TInput, TOutput>
         {
@@ -52,9 +62,12 @@ export namespace CommandHandlerBuilder {
           }
 
           async handle(command: ICommand<TInput, TOutput>) {
-            const parsedInput = command.inputSchema.parse(command.input);
+            const parsedInput = command.inputSchema["~standard"].validate(
+              command.input,
+            );
             const result = await this.callback(parsedInput);
-            const parsedOutput = command.outputSchema.parse(result);
+            const parsedOutput =
+              command.inputSchema["~standard"].validate(result);
 
             return parsedOutput;
           }
@@ -79,9 +92,9 @@ export class Mediator {
     this.handlers.push(...handlers);
   }
 
-  async send<TInput extends z.ZodTypeAny, TOutput extends z.ZodTypeAny>(
+  async send<TInput extends StandardSchemaV1, TOutput extends StandardSchemaV1>(
     command: ICommand<TInput, TOutput>,
-  ): Promise<z.infer<TOutput>> {
+  ): Promise<StandardSchemaV1.InferOutput<TOutput>> {
     const handler = this.handlers.find((handler) =>
       handler.isCommandMatching(command),
     );
