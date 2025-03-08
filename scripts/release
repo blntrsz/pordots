@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+
+set -e
+
+bun run --filter="@ports/mediator" build 
+bun changeset publish

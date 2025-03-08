@@ -1,0 +1,19 @@
+{
+  "$schema": "https://json.schemastore.org/package.json",
+  "name": "@ports/mediator",
+  "version": "0.0.1",
+  "type": "module",
+  "scripts": {
+    "build": "bun tsc"
+  },
+  "exports": {
+    ".": "./dist/index.js",
+    "./*": "./dist/*.js"
+  },
+  "dependencies": {
+    "@tsconfig/bun": "1.0.7"
+  },
+  "devDependencies": {
+    "@standard-schema/spec": "1.0.0"
+  }
+}
