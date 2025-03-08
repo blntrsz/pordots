@@ -12,12 +12,12 @@
       },
     },
     "examples/core": {
-      "name": "@ports/examples-core",
+      "name": "@pordots/example-core",
       "dependencies": {
         "zod": "3.24.2",
       },
       "devDependencies": {
-        "@ports/mediator": "workspace:*",
+        "@pordots/mediator": "workspace:*",
         "@types/bun": "latest",
       },
       "peerDependencies": {
@@ -25,7 +25,7 @@
       },
     },
     "packages/mediator": {
-      "name": "@ports/mediator",
+      "name": "@pordots/mediator",
       "version": "0.0.1",
       "dependencies": {
         "@tsconfig/bun": "1.0.7",
@@ -136,9 +136,9 @@
 
     "@nodelib/fs.walk": ["@nodelib/fs.walk@1.2.8", "", { "dependencies": { "@nodelib/fs.scandir": "2.1.5", "fastq": "^1.6.0" } }, "sha512-oGB+UxlgWcgQkgwo8GcEGwemoTFt3FIO9ababBmaGwXIoBKZ+GTy0pP185beGg7Llih/NSHSV2XAs1lnznocSg=="],
 
-    "@ports/examples-core": ["@ports/examples-core@workspace:examples/core"],
+    "@pordots/example-core": ["@pordots/example-core@workspace:examples/core"],
 
-    "@ports/mediator": ["@ports/mediator@workspace:packages/mediator"],
+    "@pordots/mediator": ["@pordots/mediator@workspace:packages/mediator"],
 
     "@rollup/rollup-android-arm-eabi": ["@rollup/rollup-android-arm-eabi@4.35.0", "", { "os": "android", "cpu": "arm" }, "sha512-uYQ2WfPaqz5QtVgMxfN6NpLD+no0MYHDBywl7itPYd3K5TjjSghNKmX8ic9S8NU8w81NVhJv/XojcHptRly7qQ=="],
 

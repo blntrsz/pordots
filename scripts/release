@@ -2,5 +2,5 @@
 
 set -e
 
-bun run --filter="@ports/mediator" build 
+bun run --filter="@pordots/mediator" build 
 bun changeset publish

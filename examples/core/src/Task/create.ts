@@ -1,4 +1,4 @@
-import { CommandBuilder, CommandHandlerBuilder } from "@ports/mediator";
+import { CommandBuilder, CommandHandlerBuilder } from "@pordots/mediator";
 import { TaskSchema } from "./task";
 
 export class CreateTaskCommand extends CommandBuilder.input(

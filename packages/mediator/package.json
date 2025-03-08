@@ -1,6 +1,6 @@
 {
   "$schema": "https://json.schemastore.org/package.json",
-  "name": "@ports/mediator",
+  "name": "@pordots/mediator",
   "version": "0.0.1",
   "type": "module",
   "scripts": {

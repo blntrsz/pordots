@@ -1,10 +1,10 @@
 {
-  "name": "@ports/example-core",
+  "name": "@pordots/example-core",
   "module": "index.ts",
   "type": "module",
   "private": true,
   "devDependencies": {
-    "@ports/mediator": "workspace:*",
+    "@pordots/mediator": "workspace:*",
     "@types/bun": "latest"
   },
   "peerDependencies": {

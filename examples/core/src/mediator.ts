@@ -1,4 +1,4 @@
-import { Mediator } from "@ports/mediator";
+import { Mediator } from "@pordots/mediator";
 import { CreateTaskCommandHandler } from "./Task/create";
 
 const mediator = new Mediator();

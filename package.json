@@ -1,5 +1,5 @@
 {
-  "name": "ports",
+  "name": "pordots",
   "private": true,
   "type": "module",
   "packageManager": "bun",
