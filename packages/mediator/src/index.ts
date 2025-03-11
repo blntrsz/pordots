@@ -1,87 +1,96 @@
 import { StandardSchemaV1 } from "@standard-schema/spec";
 
-export interface ICommand<
-  TInput extends StandardSchemaV1,
-  TOutput extends StandardSchemaV1,
-> {
+interface ClassWithSchema {
+  new (...args: any): any;
+  schema: StandardSchemaV1;
+}
+
+type IO = StandardSchemaV1 | ClassWithSchema;
+type ExtractIO<T extends IO> = T extends StandardSchemaV1
+  ? StandardSchemaV1.InferOutput<T>
+  : T extends ClassWithSchema
+    ? StandardSchemaV1.InferOutput<T["schema"]>
+    : never;
+
+type ExtractIOForResponse<T extends IO> = T extends StandardSchemaV1
+  ? StandardSchemaV1.InferOutput<T>
+  : T extends ClassWithSchema
+    ? InstanceType<T>
+    : never;
+
+export interface ICommand<TInput extends IO, TOutput extends IO> {
   inputSchema: TInput;
   outputSchema: TOutput;
-  input: StandardSchemaV1.InferOutput<TInput>;
+  input: ExtractIO<TInput>;
 }
 
-export namespace CommandBuilder {
-  export function input<TInput extends StandardSchemaV1>(inputSchema: TInput) {
-    return {
-      output<TOutput extends StandardSchemaV1>(outputSchema: TOutput) {
-        return class Command implements ICommand<TInput, TOutput> {
-          inputSchema = inputSchema;
-          outputSchema = outputSchema;
-          input: StandardSchemaV1.InferOutput<TInput>;
+export function Command<TInput extends IO>(inputSchema: TInput) {
+  return {
+    output<TOutput extends IO>(outputSchema: TOutput) {
+      return class Command implements ICommand<TInput, TOutput> {
+        inputSchema = inputSchema;
+        outputSchema = outputSchema;
+        input: ExtractIO<TInput>;
 
-          constructor(input: StandardSchemaV1.InferOutput<TInput>) {
-            this.input = input;
-          }
-        };
-      },
-    };
-  }
+        constructor(input: ExtractIO<TInput>) {
+          this.input = input;
+        }
+      };
+    },
+  };
 }
 
-export interface ICommandHandler<
-  TInput extends StandardSchemaV1,
-  TOutput extends StandardSchemaV1,
-> {
+export interface ICommandHandler<TInput extends IO, TOutput extends IO> {
   isCommandMatching(otherCommand: ICommand<any, any>): boolean;
   handle(
     command: ICommand<TInput, TOutput>,
-  ): Promise<StandardSchemaV1.InferOutput<TOutput>>;
+  ): Promise<ExtractIOForResponse<TOutput>>;
 }
 
-export namespace CommandHandlerBuilder {
-  export function command<
-    TInput extends StandardSchemaV1,
-    TOutput extends StandardSchemaV1,
-  >(
-    command: new (
-      input: StandardSchemaV1.InferOutput<TInput>,
-    ) => ICommand<TInput, TOutput>,
-  ) {
-    return {
-      handler(
-        callback: (
-          input: StandardSchemaV1.InferOutput<TInput>,
-        ) => Promise<StandardSchemaV1.InferOutput<TOutput>>,
-      ) {
-        return class CommandHandler
-          implements ICommandHandler<TInput, TOutput>
-        {
-          callback = callback;
+export function CommandHandler<TInput extends IO, TOutput extends IO>(
+  command: new (input: ExtractIO<TInput>) => ICommand<TInput, TOutput>,
+) {
+  return {
+    dependencies<TDependencies extends Record<string, any>>() {
+      return {
+        handler(
+          callback: (
+            input: ExtractIO<TInput>,
+            dependencies: TDependencies,
+          ) => Promise<ExtractIOForResponse<TOutput>>,
+        ) {
+          return class implements ICommandHandler<TInput, TOutput> {
+            callback = callback;
+            dependencies: TDependencies;
 
-          isCommandMatching(otherCommand: ICommand<TInput, TOutput>) {
-            return otherCommand instanceof command;
-          }
+            isCommandMatching(otherCommand: ICommand<TInput, TOutput>) {
+              return otherCommand instanceof command;
+            }
 
-          async handle(command: ICommand<TInput, TOutput>) {
-            const parsedInput = command.inputSchema["~standard"].validate(
-              command.input,
-            );
-            const result = await this.callback(parsedInput);
-            const parsedOutput =
-              command.inputSchema["~standard"].validate(result);
+            async handle(command: ICommand<TInput, TOutput>) {
+              const result = await this.callback(
+                command.input,
+                this.dependencies,
+              );
 
-            return parsedOutput;
-          }
-        };
-      },
-    };
-  }
+              return result;
+            }
+
+            constructor(dependencies: TDependencies) {
+              this.dependencies = dependencies;
+            }
+          };
+        },
+      };
+    },
+  };
 }
 
 export class Mediator {
   handlers: ICommandHandler<any, any>[];
 
-  constructor() {
-    this.handlers = [];
+  constructor(handlers: ICommandHandler<any, any>[] = []) {
+    this.handlers = handlers;
   }
 
   add(handler: ICommandHandler<any, any>) {
@@ -92,9 +101,9 @@ export class Mediator {
     this.handlers.push(...handlers);
   }
 
-  async send<TInput extends StandardSchemaV1, TOutput extends StandardSchemaV1>(
+  async send<TInput extends IO, TOutput extends IO>(
     command: ICommand<TInput, TOutput>,
-  ): Promise<StandardSchemaV1.InferOutput<TOutput>> {
+  ): Promise<ExtractIOForResponse<TOutput>> {
     const handler = this.handlers.find((handler) =>
       handler.isCommandMatching(command),
     );

@@ -11,12 +11,13 @@
         "typescript": "5.8.2",
       },
     },
-    "examples/core": {
-      "name": "@pordots/example-core",
+    "examples/vertical-slice": {
+      "name": "@pordots/example-vertical-slice",
       "dependencies": {
         "zod": "3.24.2",
       },
       "devDependencies": {
+        "@pordots/domain": "workspace:*",
         "@pordots/mediator": "workspace:*",
         "@types/bun": "latest",
       },
@@ -24,11 +25,29 @@
         "typescript": "^5",
       },
     },
-    "packages/mediator": {
-      "name": "@pordots/mediator",
-      "version": "0.0.1",
+    "packages/domain": {
+      "name": "@pordots/domain",
+      "version": "0.0.0",
       "dependencies": {
         "@tsconfig/bun": "1.0.7",
+        "@tsconfig/node22": "22.0.0",
+        "@types/node": "22.13.9",
+        "typescript": "5.8.2",
+        "vitest": "3.0.8",
+        "zod": "3.24.2",
+      },
+      "devDependencies": {
+        "@standard-schema/spec": "1.0.0",
+      },
+    },
+    "packages/mediator": {
+      "name": "@pordots/mediator",
+      "version": "0.0.5",
+      "dependencies": {
+        "@tsconfig/bun": "1.0.7",
+        "@tsconfig/node22": "22.0.0",
+        "@types/node": "22.13.9",
+        "typescript": "5.8.2",
         "vitest": "3.0.8",
         "zod": "3.24.2",
       },
@@ -136,7 +155,9 @@
 
     "@nodelib/fs.walk": ["@nodelib/fs.walk@1.2.8", "", { "dependencies": { "@nodelib/fs.scandir": "2.1.5", "fastq": "^1.6.0" } }, "sha512-oGB+UxlgWcgQkgwo8GcEGwemoTFt3FIO9ababBmaGwXIoBKZ+GTy0pP185beGg7Llih/NSHSV2XAs1lnznocSg=="],
 
-    "@pordots/example-core": ["@pordots/example-core@workspace:examples/core"],
+    "@pordots/domain": ["@pordots/domain@workspace:packages/domain"],
+
+    "@pordots/example-vertical-slice": ["@pordots/example-vertical-slice@workspace:examples/vertical-slice"],
 
     "@pordots/mediator": ["@pordots/mediator@workspace:packages/mediator"],
 

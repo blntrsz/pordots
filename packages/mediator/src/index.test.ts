@@ -1,8 +1,8 @@
 import { z } from "zod";
-import { CommandBuilder, CommandHandlerBuilder, Mediator } from "./index.js";
+import { Command, CommandHandler, Mediator } from "./index.js";
 import { describe, expect, it } from "vitest";
 
-class CreateTaskCommand extends CommandBuilder.input(
+class CreateTaskCommand extends Command(
   z.object({
     title: z.string(),
   }),
@@ -13,17 +13,17 @@ class CreateTaskCommand extends CommandBuilder.input(
   }),
 ) {}
 
-class CreateTaskCommandHandler extends CommandHandlerBuilder.command(
-  CreateTaskCommand,
-).handler(async (input) => {
-  return {
-    id: "1",
-    title: input.title,
-  };
-}) {}
+class CreateTaskCommandHandler extends CommandHandler(CreateTaskCommand)
+  .dependencies()
+  .handler(async (input) => {
+    return {
+      id: "1",
+      title: input.title,
+    };
+  }) {}
 
 const client = new Mediator();
-client.add(new CreateTaskCommandHandler());
+client.add(new CreateTaskCommandHandler({}));
 
 describe("mediator", () => {
   it("should throw an error if no handler is found for the command", async () => {
@@ -67,18 +67,18 @@ describe("mediator", () => {
   });
 
   it("should validate the output of the command handler", async () => {
-    class CreateTaskCommandHandler extends CommandHandlerBuilder.command(
-      CreateTaskCommand,
-      // @ts-expect-error -- we intentionally return an invalid output
-    ).handler(async (input) => {
-      return {
-        id: "1",
-        label: input.title,
-      };
-    }) {}
+    class CreateTaskCommandHandler extends CommandHandler(CreateTaskCommand)
+      .dependencies()
+      // @ts-expect-error -- we intentionally pass an invalid input
+      .handler(async (input) => {
+        return {
+          id: "1",
+          label: input.title,
+        };
+      }) {}
 
     const client = new Mediator();
-    client.add(new CreateTaskCommandHandler());
+    client.add(new CreateTaskCommandHandler({}));
 
     const title = "test";
     const command = new CreateTaskCommand({ title });

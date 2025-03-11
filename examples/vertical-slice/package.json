@@ -1,9 +1,10 @@
 {
-  "name": "@pordots/example-core",
+  "name": "@pordots/example-vertical-slice",
   "module": "index.ts",
   "type": "module",
   "private": true,
   "devDependencies": {
+    "@pordots/domain": "workspace:*",
     "@pordots/mediator": "workspace:*",
     "@types/bun": "latest"
   },
