@@ -3,4 +3,5 @@
 set -e
 
 bun run --filter="@pordots/mediator" build 
+bun run --filter="@pordots/domain" build 
 bun changeset publish
